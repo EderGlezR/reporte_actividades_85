@@ -70,6 +70,29 @@ más reciente. La base de datos Postgres vive **separada** del servicio web, as�
 redeploys y reinicios del contenedor: los datos ya no se pierden como pasaba con SQLite en el
 disco temporal.
 
+## Importar datos iniciales desde Excel
+
+[`server/scripts/seed-data.json`](server/scripts/seed-data.json) contiene el dataset real de
+actividades (extraído de un Excel de arranque). [`server/scripts/import.js`](server/scripts/import.js)
+lo carga a la base de datos.
+
+**⚠️ Este script BORRA todas las actividades y la bitácora actuales antes de insertar los datos
+nuevos.** Úsalo solo para inicializar la base o para resetearla a propósito.
+
+```bash
+# PowerShell
+$env:DATABASE_URL = "<External Database URL de tu base en Render>"
+node server/scripts/import.js
+
+# bash
+export DATABASE_URL="<External Database URL de tu base en Render>"
+node server/scripts/import.js
+```
+
+La "External Database URL" se obtiene en el dashboard de Render, dentro del recurso
+`seguimiento-db` → pestaña **Connect** o **Info**. Es distinta de la URL interna que usa el
+Web Service — la externa es la que permite conectarte desde tu propia máquina.
+
 **⚠️ Dos límites del plan free que sí siguen aplicando:**
 - El **Web Service** se duerme tras ~15 minutos sin tráfico; la primera visita después de eso
   tarda 30-50 segundos en responder mientras arranca de nuevo. Los datos no se pierden por esto,

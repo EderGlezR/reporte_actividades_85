@@ -1,5 +1,5 @@
 const NAME_KEY = 'seguimiento_userName';
-const ESTATUS_OPCIONES = ['PENDIENTE', 'EN PROCESO', 'COMPLETADO', 'DETENIDO'];
+const ESTATUS_OPCIONES = ['PENDIENTE', 'EN PROCESO', 'HECHO', 'DETENIDO'];
 
 let currentActivities = [];
 let editingId = null;

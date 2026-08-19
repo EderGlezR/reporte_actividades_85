@@ -7,7 +7,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 const EDITABLE_FIELDS = ['avance', 'comentario', 'fecha_compromiso', 'barreras'];
-const ESTATUS_OPCIONES = ['PENDIENTE', 'EN PROCESO', 'COMPLETADO', 'DETENIDO'];
+const ESTATUS_OPCIONES = ['PENDIENTE', 'EN PROCESO', 'HECHO', 'DETENIDO'];
 
 async function distinctValues(column) {
   const { rows } = await pool.query(

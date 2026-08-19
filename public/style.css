@@ -246,7 +246,7 @@ tbody tr:hover { background: #FBFDFD; }
 }
 .status-PENDIENTE { background: var(--pending); }
 .status-EN-PROCESO { background: var(--progress); }
-.status-COMPLETADO { background: var(--done); }
+.status-HECHO { background: var(--done); }
 .status-DETENIDO { background: var(--stopped); }
 
 .editable-input, .editable-select, .editable-textarea {
