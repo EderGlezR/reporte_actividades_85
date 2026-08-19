@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Seguimiento de Actividades</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="nameGate" class="modal-overlay">
+  <div class="modal">
+    <h2>¿Quién eres?</h2>
+    <p>Escribe tu nombre. Se usará para registrar los cambios que hagas en la bitácora.</p>
+    <input type="text" id="nameInput" placeholder="Tu nombre" maxlength="60" />
+    <button id="nameSubmit" class="btn btn-primary">Continuar</button>
+    <p id="nameError" class="error-text"></p>
+  </div>
+</div>
+
+<div id="historyModal" class="modal-overlay hidden">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <h2>Historial de cambios</h2>
+      <button id="closeHistory" class="btn-icon" aria-label="Cerrar">&times;</button>
+    </div>
+    <div id="historyContent" class="history-content"></div>
+  </div>
+</div>
+
+<header class="topbar">
+  <div class="topbar-title">
+    <h1>Seguimiento de Actividades</h1>
+  </div>
+  <div class="topbar-user">
+    <span id="currentUserLabel"></span>
+    <button id="changeNameBtn" class="link-btn">cambiar</button>
+  </div>
+</header>
+
+<main class="content">
+
+  <section class="filters">
+    <div class="filter-group">
+      <label for="filterFecha">Fecha compromiso</label>
+      <input type="date" id="filterFecha" />
+    </div>
+
+    <div class="filter-group" id="filterResponsableWrap">
+      <label>Responsable</label>
+      <div class="multiselect" id="filterResponsable"></div>
+    </div>
+
+    <div class="filter-group" id="filterCoordinacionWrap">
+      <label>Coordinación</label>
+      <div class="multiselect" id="filterCoordinacion"></div>
+    </div>
+
+    <div class="filter-group" id="filterEstatusWrap">
+      <label>Estatus</label>
+      <div class="multiselect" id="filterEstatus"></div>
+    </div>
+
+    <button id="clearFilters" class="btn btn-ghost">Limpiar filtros</button>
+  </section>
+
+  <section class="table-wrap">
+    <table id="activitiesTable">
+      <thead>
+        <tr>
+          <th>Actividad</th>
+          <th>Descripción de acciones</th>
+          <th>Responsable</th>
+          <th>Coordinación</th>
+          <th>Avance</th>
+          <th>Comentario</th>
+          <th>Fecha compromiso</th>
+          <th>Barreras/Apoyo querido</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="activitiesBody"></tbody>
+    </table>
+    <p id="emptyState" class="empty-state hidden">No hay actividades que coincidan con los filtros.</p>
+  </section>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
