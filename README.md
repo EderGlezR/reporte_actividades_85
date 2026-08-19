@@ -17,52 +17,64 @@ en una bitácora con el nombre de quién lo hizo.
 
 ## Requisitos
 
-- Node.js 22.5 o superior (usa el módulo nativo `node:sqlite`, sin dependencias de compilación).
+- Node.js 18 o superior.
+- Una base de datos Postgres (local o remota) — la app la usa para persistir actividades y la
+  bitácora de cambios.
 
 ## Uso local
 
-```bash
-npm install
-npm start
-```
+1. Copia la cadena de conexión de tu base de datos Postgres (local o la que uses en Render) y
+   defínela como variable de entorno `DATABASE_URL`:
 
-Abre http://localhost:3000
+   ```bash
+   # PowerShell
+   $env:DATABASE_URL = "postgres://usuario:password@host:5432/basededatos"
 
-La base de datos SQLite se crea automáticamente en `data/app.db` la primera vez que corres
-el servidor, con una actividad de ejemplo.
+   # bash
+   export DATABASE_URL="postgres://usuario:password@host:5432/basededatos"
+   ```
+
+   Si tu Postgres local no usa SSL, agrega también `PGSSL=disable`.
+
+2. Instala dependencias y arranca el servidor:
+
+   ```bash
+   npm install
+   npm start
+   ```
+
+Abre http://localhost:3000. Las tablas (`activities`, `change_log`) y la actividad de ejemplo se
+crean automáticamente la primera vez que el servidor se conecta a la base de datos.
 
 ## Desplegar en Render (para compartir por link)
 
 El proyecto ya incluye [`render.yaml`](render.yaml) (Render "Blueprint"), listo para usarse.
+Define dos recursos: el **Web Service** de Node y una **base de datos Postgres** (plan free),
+conectados automáticamente vía la variable `DATABASE_URL`.
 
-1. **Sube el proyecto a GitHub.** Crea un repositorio (puede ser privado) y sube esta carpeta:
+1. **Sube el proyecto a GitHub** (si aún no lo has hecho):
    ```bash
-   git init
    git add .
-   git commit -m "Primera versión de seguimiento de actividades"
-   git branch -M main
-   git remote add origin <URL_DE_TU_REPO_EN_GITHUB>
-   git push -u origin main
+   git commit -m "Migrar a Postgres"
+   git push origin main
    ```
 2. En [render.com](https://render.com), crea una cuenta (o inicia sesión) y ve a
    **New +** → **Blueprint**.
-3. Conecta tu repositorio de GitHub. Render detecta `render.yaml` automáticamente y propone
-   un **Web Service** (Node) que corre `npm install` y `npm start` en el plan **free**.
+3. Conecta tu repositorio de GitHub. Render detecta `render.yaml` automáticamente y propone crear
+   el Web Service y la base de datos Postgres, ambos en plan **free** (sin pedir tarjeta).
 4. Confirma el despliegue. Al terminar, Render te da una URL pública
    (`https://seguimiento-actividades.onrender.com` o similar) — ese es el link que compartes.
 
-**⚠️ Sobre la persistencia de datos con el plan `free`:** este plan no tiene disco persistente
-ni servidor siempre encendido, así que la base de datos SQLite (`data/app.db`) vive en el
-sistema de archivos temporal del contenedor. Eso significa que **las actividades editadas y la
-bitácora de cambios se pueden borrar** cada vez que Render redespliega el servicio (por ejemplo,
-tras cada `git push`) o cuando el servicio "duerme" por inactividad y vuelve a arrancar. Es
-suficiente para probar la interfaz y el flujo, pero **no es confiable para uso real donde varias
-personas van a guardar cambios que no quieres perder**.
-
-Si más adelante quieres persistencia real, hay que cambiar `plan: free` por `plan: starter` y
-agregar de vuelta un bloque `disk` en `render.yaml` (requiere tarjeta de pago en tu cuenta de
-Render, ~$7 USD/mes) — o migrar `DATA_DIR` a una base de datos externa administrada (por ejemplo
-Postgres) que no dependa del disco del contenedor.
-
 Cada vez que hagas `git push` a `main`, Render vuelve a desplegar automáticamente la versión
-más reciente.
+más reciente. La base de datos Postgres vive **separada** del servicio web, así que sobrevive
+redeploys y reinicios del contenedor: los datos ya no se pierden como pasaba con SQLite en el
+disco temporal.
+
+**⚠️ Dos límites del plan free que sí siguen aplicando:**
+- El **Web Service** se duerme tras ~15 minutos sin tráfico; la primera visita después de eso
+  tarda 30-50 segundos en responder mientras arranca de nuevo. Los datos no se pierden por esto,
+  solo hay una espera inicial.
+- La **base de datos Postgres free de Render expira a los 90 días** y hay que recrearla (o pasar
+  a un plan pagado) para no perder la información acumulada. Si esto pasa a ser una herramienta
+  de uso continuo, conviene poner un recordatorio para revisarlo antes de esa fecha, o migrar a
+  un proveedor de Postgres gratuito sin expiración (como Neon) o al plan pagado de Render.
