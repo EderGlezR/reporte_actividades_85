@@ -2,15 +2,9 @@ services:
   - type: web
     name: seguimiento-actividades
     runtime: node
-    plan: starter
+    plan: free
     buildCommand: npm install
     startCommand: npm start
     envVars:
       - key: NODE_VERSION
         value: 22.14.0
-      - key: DATA_DIR
-        value: /var/data
-    disk:
-      name: seguimiento-data
-      mountPath: /var/data
-      sizeGB: 1

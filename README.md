@@ -46,19 +46,23 @@ El proyecto ya incluye [`render.yaml`](render.yaml) (Render "Blueprint"), listo 
    ```
 2. En [render.com](https://render.com), crea una cuenta (o inicia sesión) y ve a
    **New +** → **Blueprint**.
-3. Conecta tu repositorio de GitHub. Render detecta `render.yaml` automáticamente y propone:
-   - Un **Web Service** (Node) que corre `npm install` y `npm start`.
-   - Un **disco persistente** de 1 GB montado en `/var/data`, donde vivirá la base de datos
-     SQLite (`data/app.db` vía la variable `DATA_DIR`). Esto es necesario para que los datos
-     **no se borren** cada vez que Render reinicia o redespliega el servicio.
+3. Conecta tu repositorio de GitHub. Render detecta `render.yaml` automáticamente y propone
+   un **Web Service** (Node) que corre `npm install` y `npm start` en el plan **free**.
 4. Confirma el despliegue. Al terminar, Render te da una URL pública
    (`https://seguimiento-actividades.onrender.com` o similar) — ese es el link que compartes.
 
-**Sobre costos:** el plan `starter` de Render (el más económico que soporta disco persistente,
-actualmente desde ~$7 USD/mes) es necesario porque el plan gratuito de Render no incluye disco
-persistente — con el plan gratuito los datos se perderían en cada reinicio del servicio. Si
-prefieres no pagar y solo quieres probar la interfaz sin garantía de persistencia, puedes cambiar
-`plan: starter` por `plan: free` y quitar el bloque `disk` en `render.yaml`, con esa advertencia.
+**⚠️ Sobre la persistencia de datos con el plan `free`:** este plan no tiene disco persistente
+ni servidor siempre encendido, así que la base de datos SQLite (`data/app.db`) vive en el
+sistema de archivos temporal del contenedor. Eso significa que **las actividades editadas y la
+bitácora de cambios se pueden borrar** cada vez que Render redespliega el servicio (por ejemplo,
+tras cada `git push`) o cuando el servicio "duerme" por inactividad y vuelve a arrancar. Es
+suficiente para probar la interfaz y el flujo, pero **no es confiable para uso real donde varias
+personas van a guardar cambios que no quieres perder**.
+
+Si más adelante quieres persistencia real, hay que cambiar `plan: free` por `plan: starter` y
+agregar de vuelta un bloque `disk` en `render.yaml` (requiere tarjeta de pago en tu cuenta de
+Render, ~$7 USD/mes) — o migrar `DATA_DIR` a una base de datos externa administrada (por ejemplo
+Postgres) que no dependa del disco del contenedor.
 
 Cada vez que hagas `git push` a `main`, Render vuelve a desplegar automáticamente la versión
 más reciente.
