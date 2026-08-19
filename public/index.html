@@ -41,14 +41,14 @@
 <main class="content">
 
   <section class="filters">
+    <div class="filter-group filter-search">
+      <label for="filterSearch">Buscar</label>
+      <input type="text" id="filterSearch" placeholder="Buscar en la tabla..." />
+    </div>
+
     <div class="filter-group">
       <label for="filterFecha">Fecha compromiso</label>
       <input type="date" id="filterFecha" />
-    </div>
-
-    <div class="filter-group" id="filterResponsableWrap">
-      <label>Responsable</label>
-      <div class="multiselect" id="filterResponsable"></div>
     </div>
 
     <div class="filter-group" id="filterCoordinacionWrap">
@@ -63,6 +63,8 @@
 
     <button id="clearFilters" class="btn btn-ghost">Limpiar filtros</button>
   </section>
+
+  <section class="counts-bar" id="countsBar"></section>
 
   <section class="table-wrap">
     <table id="activitiesTable">

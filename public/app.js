@@ -4,9 +4,9 @@ const ESTATUS_OPCIONES = ['PENDIENTE', 'EN PROCESO', 'HECHO', 'DETENIDO'];
 let currentActivities = [];
 let editingId = null;
 let editDraft = {};
+let searchTerm = '';
 
 const filterState = {
-  responsable: new Set(),
   coordinacion: new Set(),
   estatus: new Set()
 };
@@ -124,7 +124,6 @@ document.addEventListener('click', () => {
   document.querySelectorAll('.multiselect-panel').forEach((p) => p.classList.add('hidden'));
 });
 
-const responsableMS = buildMultiSelect('filterResponsable', filterState.responsable, fetchActivities);
 const coordinacionMS = buildMultiSelect('filterCoordinacion', filterState.coordinacion, fetchActivities);
 const estatusMS = buildMultiSelect('filterEstatus', filterState.estatus, fetchActivities);
 
@@ -133,14 +132,12 @@ const estatusMS = buildMultiSelect('filterEstatus', filterState.estatus, fetchAc
 async function fetchMeta() {
   const res = await fetch('/api/meta');
   const meta = await res.json();
-  responsableMS.renderOptions(meta.responsables);
   coordinacionMS.renderOptions(meta.coordinaciones);
   estatusMS.renderOptions(meta.estatus && meta.estatus.length ? meta.estatus : ESTATUS_OPCIONES);
 }
 
 function buildQuery() {
   const params = new URLSearchParams();
-  filterState.responsable.forEach((v) => params.append('responsable', v));
   filterState.coordinacion.forEach((v) => params.append('coordinacion', v));
   filterState.estatus.forEach((v) => params.append('estatus', v));
   const fecha = document.getElementById('filterFecha').value;
@@ -157,17 +154,62 @@ async function fetchActivities() {
 
 document.getElementById('filterFecha').addEventListener('change', fetchActivities);
 
+document.getElementById('filterSearch').addEventListener('input', (e) => {
+  searchTerm = e.target.value.trim().toLowerCase();
+  renderTable();
+});
+
 document.getElementById('clearFilters').addEventListener('click', () => {
-  filterState.responsable.clear();
   filterState.coordinacion.clear();
   filterState.estatus.clear();
   document.getElementById('filterFecha').value = '';
-  responsableMS.updateToggleLabel();
+  document.getElementById('filterSearch').value = '';
+  searchTerm = '';
   coordinacionMS.updateToggleLabel();
   estatusMS.updateToggleLabel();
   fetchMeta();
   fetchActivities();
 });
+
+// ---------- Búsqueda de texto y contador ----------
+
+function rowMatchesSearch(row) {
+  if (!searchTerm) return true;
+  const haystack = [
+    row.actividad,
+    row.descripcion,
+    row.responsable,
+    row.coordinacion,
+    row.avance,
+    row.comentario,
+    formatDate(row.fecha_compromiso),
+    row.barreras
+  ]
+    .join(' ')
+    .toLowerCase();
+  return haystack.includes(searchTerm);
+}
+
+function getVisibleActivities() {
+  return currentActivities.filter((row) => row.id === editingId || rowMatchesSearch(row));
+}
+
+function updateCounts(visible) {
+  const counts = { 'PENDIENTE': 0, 'EN PROCESO': 0, 'HECHO': 0, 'DETENIDO': 0 };
+  visible.forEach((row) => {
+    const key = row.avance || 'PENDIENTE';
+    if (key in counts) counts[key] += 1;
+  });
+
+  const bar = document.getElementById('countsBar');
+  bar.innerHTML = `
+    <span class="count-chip count-total">${visible.length} actividades totales</span>
+    <span class="count-chip status-PENDIENTE">${counts['PENDIENTE']} Pendiente</span>
+    <span class="count-chip status-EN-PROCESO">${counts['EN PROCESO']} En proceso</span>
+    <span class="count-chip status-HECHO">${counts['HECHO']} Hecho</span>
+    <span class="count-chip status-DETENIDO">${counts['DETENIDO']} Detenido</span>
+  `;
+}
 
 // ---------- Tabla ----------
 
@@ -202,13 +244,16 @@ function renderTable() {
   const emptyState = document.getElementById('emptyState');
   tbody.innerHTML = '';
 
-  if (!currentActivities.length) {
+  const visible = getVisibleActivities();
+  updateCounts(visible);
+
+  if (!visible.length) {
     emptyState.classList.remove('hidden');
     return;
   }
   emptyState.classList.add('hidden');
 
-  currentActivities.forEach((row) => {
+  visible.forEach((row) => {
     const tr = document.createElement('tr');
     const isEditing = editingId === row.id;
 

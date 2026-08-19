@@ -92,12 +92,18 @@ body {
   letter-spacing: 0.03em;
 }
 
-.filter-group input[type="date"] {
+.filter-group input[type="date"],
+.filter-group input[type="text"] {
   padding: 8px 10px;
   border: 1px solid var(--border);
   border-radius: 6px;
   font-size: 14px;
   font-family: inherit;
+}
+
+.filter-search {
+  min-width: 240px;
+  flex: 1 1 240px;
 }
 
 .btn {
@@ -189,6 +195,28 @@ body {
   color: var(--text-muted);
   font-size: 13px;
   padding: 6px;
+}
+
+/* Contador de resultados */
+.counts-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.count-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.count-total {
+  background: var(--text);
 }
 
 /* Table */
