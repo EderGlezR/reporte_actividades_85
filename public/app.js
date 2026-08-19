@@ -171,6 +171,37 @@ document.getElementById('clearFilters').addEventListener('click', () => {
   fetchActivities();
 });
 
+// ---------- Descargar Excel ----------
+
+document.getElementById('downloadExcelBtn').addEventListener('click', () => {
+  const visible = getVisibleActivities();
+
+  if (!visible.length) {
+    alert('No hay actividades para exportar con los filtros actuales.');
+    return;
+  }
+
+  const rows = visible.map((row) => ({
+    'Actividad': row.actividad || '',
+    'Descripción de acciones': row.descripcion || '',
+    'Responsable': row.responsable || '',
+    'Coordinación': row.coordinacion || '',
+    'Avance': row.avance || '',
+    'Comentario': row.comentario || '',
+    'Fecha compromiso': row.fecha_compromiso ? formatDate(row.fecha_compromiso) : '',
+    'Barreras/Apoyo querido': row.barreras || '',
+    'Editado por': row.updated_by || '',
+    'Última edición': row.updated_at ? formatDateTime(row.updated_at) : ''
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(rows);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Actividades');
+
+  const fecha = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(workbook, `seguimiento-actividades-${fecha}.xlsx`);
+});
+
 // ---------- Búsqueda de texto y contador ----------
 
 function rowMatchesSearch(row) {
